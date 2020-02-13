@@ -1,0 +1,67 @@
+.loginLogo{
+  height: 60px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.loginLogo img{
+  margin-top: 30px;
+  height: 60px;
+  vertical-align: top;
+}
+.loginPage{
+  background: #f0f2f5;
+}
+.loginHeader{
+  font-size: 35px;
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 300;
+}
+.loginHeader a{
+  color: #696969;
+  text-decoration:none;
+}
+.loginBox{
+  width: 360px;
+  margin: 50px auto;
+}
+.loginBoxBody{
+  background: #fff;
+  padding: 20px;
+  border-top: 0;
+  color: #666;
+}
+.loginBoxBody img{
+    width: 100%;
+    height: 100%;
+}
+.loginBoxMsg{
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+  padding: 0 20px 20px 20px;
+}
+
+.square{
+  border-radius: 0 !important;
+}
+.adjustLink{
+  padding: 10px 0 0 20px;
+}
+.btn-submit{
+  color: #fff;
+  background-color: #3284dc;
+  border-color: #3284dc;
+  width:100%;
+}
+.btn-submit:hover{
+  color: #fff;
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+@media (max-width: 768px) {
+  .loginBox{
+    width: 90%;
+    margin-top: 20px;
+  }
+}

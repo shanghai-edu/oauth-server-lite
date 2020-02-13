@@ -1,0 +1,49 @@
+{
+	"log_level": "info",
+	"db": {
+		"dsn": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",
+		"db_debug": false
+	},
+	"redis": {
+		"dsn": "127.0.0.1:6379",
+		"max_idle": 5,
+		"conn_timeout": 5,
+		"read_timeout": 5,
+		"write_timeout": 5,
+		"password": ""
+	},
+	"redis_namespace":{
+		"oauth":"oauth:",
+		"cache":"cache:",
+		"lock":"lock:",
+		"fail":"fail:"
+	},
+    "ldap": {
+        "addr": "ldap.example.org:389",
+        "baseDn": "dc=example,dc=org",
+        "bindDn": "cn=manager,dc=example,dc=org",
+        "bindPass": "password",
+        "authFilter": "(&(uid=%s))",
+        "attributes": ["uid", "cn", "mail"],
+        "tls":        false,
+        "startTLS":   false
+    },
+	"http": {
+		"listen": "0.0.0.0:18080",
+		"session_options":{
+			"path":"/",
+			"domain":"idp.example.org",
+			"max_age":7200,
+			"secure":false,
+			"http_only":false
+		},
+		"max_multipart_memory":100
+	},
+	"max_failed":5,
+	"failed_intervel":300,
+	"lock_time":600,
+	"access_token_expired":7200,
+	"old_access_token_expired":300,
+	"refresh_token_expired_day":365,
+	"code_expired":300
+}
