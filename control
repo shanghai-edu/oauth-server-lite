@@ -77,7 +77,7 @@ function pack() {
     build
     git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    file_list="control cfg.example.json $app"
+    file_list="control cfg.example.json resource template $app oauth.sql"
     echo "...tar $app-$version.tar.gz <= $file_list"
     tar zcf $app-$version.tar.gz gitversion $file_list
 }

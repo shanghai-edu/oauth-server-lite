@@ -16,7 +16,7 @@
 
 #### 安装 mysql(mariadb)
 ```
-# yum install maraidb maraidb-server
+# yum install mariadb mariadb-server 
 # systemctl start mariadb
 # mysql_secure_installation 
 # systemctl enable mariadb
@@ -28,11 +28,13 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 ```
 
 #### 编译安装
-···
+```
 # git clone https://github.com/shanghai-edu/oauth-server-lite.git
 # cd oauth-server-listen
 # go build
-···
+# chmod +x control
+# ./control pack
+```
 
 #### 配置
 ```
