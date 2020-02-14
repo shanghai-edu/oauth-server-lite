@@ -28,6 +28,7 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 ```
 
 #### 编译安装
+需要 go 1.13 或开启 go module 的其他版本
 ```
 # git clone https://github.com/shanghai-edu/oauth-server-lite.git
 # cd oauth-server-listen
@@ -35,6 +36,9 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 # chmod +x control
 # ./control pack
 ```
+
+#### 下载编译好的二进制包
+[下载](https://github.com/shanghai-edu/oauth-server-lite/releases/download/v0.2.1/oauth-server-lite-0.2.1.tar.gz) 编译好的二进制包
 
 #### 配置
 ```
