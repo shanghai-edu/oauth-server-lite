@@ -37,10 +37,10 @@ func Routes(r *gin.Engine) {
 	authorize.GET("/authorize", getAuthorizeCode)
 
 	user := r.Group("/user")
+	user.Use(NoCache())
 	user.GET("/login", loginGet)
 	user.POST("/login", loginPost)
 	user.GET("/captcha", getCaptcha)
-
 	user.GET("/logout", logout)
 
 	userinfo := r.Group("/oauth/v1")
