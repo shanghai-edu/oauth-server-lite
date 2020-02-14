@@ -49,4 +49,10 @@ func Routes(r *gin.Engine) {
 	userinfo.GET("/userinfo", getUserInfo)
 	userinfo.POST("/userinfo", getUserInfo)
 
+	manage := r.Group("/manage/v1")
+	manage.Use(midd.XAPICheckMidd)
+	manage.POST("/client", addClient)
+	manage.GET("/client/:client_id", getClient)
+	manage.DELETE("/client/:client_id", delClient)
+	manage.GET("/clients", getAllClients)
 }

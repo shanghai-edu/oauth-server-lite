@@ -1,7 +1,7 @@
 package g
 
 const (
-	VERSION = "0.1.0"
+	VERSION = "0.2.0"
 	SALT    = "ba6bb05c50e03f6b5ab54a2b7914800d"
 )
 
@@ -22,6 +22,7 @@ const (
 	UnsupportedResponseType = "unsupported_response_type"
 	AccessDenied            = "access_denied"
 	ServerError             = "server_error"
+	InvalidAPIKey           = "invalid_api_key"
 )
 
 var LoginErrorDescription = map[string]string{
@@ -44,4 +45,5 @@ var OauthErrorDescription = map[string]string{
 	UnsupportedResponseType: "授权服务器不支持使用此方法获得授权码",
 	AccessDenied:            "授权服务器拒绝该请求",
 	ServerError:             "服务器内部错误",
+	InvalidAPIKey:           "错误的 X-API-KEY",
 }

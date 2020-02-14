@@ -20,9 +20,21 @@ func UpdateClient(client OauthClient) error {
 	return err
 }
 
+func DeleteClient(client OauthClient) error {
+	db := g.ConnectDB()
+	err := db.Delete(&client).Error
+	return err
+}
+
 func GetClientByClientID(clientID string) (client OauthClient) {
 	db := g.ConnectDB()
 	db.Where("client_id = ?", clientID).First(&client)
+	return
+}
+
+func GetClients() (clients []OauthClient) {
+	db := g.ConnectDB()
+	db.Find(&clients)
 	return
 }
 
@@ -59,7 +71,7 @@ func GenerateClientCredentialsClient(description string, whiteIPArray []string) 
 		GrantType:    "client_credentials",
 		Description:  description,
 		WhiteIP:      string(bs),
-		Scope:        "ECNU-Advance",
+		Scope:        "Advance",
 	}
 	err = CreateClient(client)
 	return
@@ -77,7 +89,7 @@ func GenerateAuthorizationCodeClient(description, domain string) (client OauthCl
 		GrantType:    "authorization_code",
 		Domain:       domain,
 		Description:  description,
-		Scope:        "ECNU-Basic",
+		Scope:        "Basic",
 	}
 	err = CreateClient(client)
 	return

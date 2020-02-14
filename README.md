@@ -24,15 +24,15 @@
 
 #### 初始化表结构,
 ```
-MariaDB [(none)]> create database oauth;
-MariaDB [(none)]> use oauth;
-MariaDB [oauth]> source /root/oauth.sql;
+mysql -h 127.0.0.1 -u root -p < oauth.sql
 ```
 
-#### 创建 oauth client
-```
-MariaDB [oauth]> INSERT INTO `oauth`.`oauth_client`(`client_id`, `client_secret`, `grant_type`, `domain`, `scope`, `description`) VALUES ('test', 'test', 'authorization_code', 'idp-oauth.ecnu.edu.cn', 'test', 'test');
-```
+#### 编译安装
+···
+# git clone https://github.com/shanghai-edu/oauth-server-lite.git
+# cd oauth-server-listen
+# go build
+···
 
 #### 配置
 ```
@@ -68,6 +68,8 @@ MariaDB [oauth]> INSERT INTO `oauth`.`oauth_client`(`client_id`, `client_secret`
     },
 	"http": {
 		"listen": "0.0.0.0:18080",
+		"manage_ip": ["127.0.0.1"], # 管理接口的授信 ip
+		"x-api-key": "shanghai-edu", # 管理接口的 api key
 		"session_options":{ # session 参数
 			"path":"/",
 			"domain":"idp.example.org", # 必须与实际域名匹配
@@ -91,4 +93,28 @@ MariaDB [oauth]> INSERT INTO `oauth`.`oauth_client`(`client_id`, `client_secret`
 
 ```
 ./control start
+```
+
+#### 管理接口
+##### 创建 client
+```
+# curl -H "X-API-KEY: shanghai-edu" -H "Content-Type: application/json" -d "{\"gr
+ant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.0.1:18080/manage/v1/client
+
+{"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
+```
+##### 查询 client
+```
+# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/client/4ee85cea19800426
+{"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
+```
+##### 查询所有 client
+```
+# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/clients
+[{"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}]
+```
+##### 删除 client
+```
+# curl -X DELETE -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/client/4ee85cea19800426
+{"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
 ```

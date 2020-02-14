@@ -8,6 +8,7 @@ import (
 
 	"oauth-server-lite/g"
 	"oauth-server-lite/models/oauth"
+	"oauth-server-lite/models/utils"
 
 	"github.com/gin-contrib/sessions"
 	log "github.com/sirupsen/logrus"
@@ -37,7 +38,7 @@ func OauthTokenCheckMidd(c *gin.Context) {
 		c.Next()
 		return
 	}
-	c.JSON(http.StatusUnauthorized, OauthErrorRes("invalid_token"))
+	c.JSON(http.StatusUnauthorized, OauthErrorRes(g.InvalidToken))
 	c.Abort()
 }
 
@@ -49,6 +50,25 @@ func checkToken(accessToken string) bool {
 	} else {
 		return false
 	}
+}
+
+func XAPICheckMidd(c *gin.Context) {
+	key := c.Request.Header.Get("X-API-KEY")
+	if !checkXApiKey(key) {
+		c.JSON(http.StatusUnauthorized, OauthErrorRes(g.InvalidAPIKey))
+		c.Abort()
+		return
+	}
+	if !utils.IPCheck(c.ClientIP(), g.Config().Http.ManageIP) {
+		c.JSON(http.StatusUnauthorized, OauthErrorRes(g.InvalidIP))
+		c.Abort()
+		return
+	}
+	c.Next()
+}
+
+func checkXApiKey(key string) bool {
+	return key == g.Config().Http.XAPIKey
 }
 
 func AuthorizeLoginCheck(c *gin.Context) {

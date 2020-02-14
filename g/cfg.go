@@ -78,6 +78,8 @@ HttpConfig Http 配置
 */
 type HttpConfig struct {
 	Listen             string                `json:"listen"`
+	ManageIP           []string              `json:"manage_ip"`
+	XAPIKey            string                `json:"x-api-key"`
 	SessionOptions     *SessionOptionsConfig `json:"session_options"`
 	MaxMultipartMemory int                   `json:"max_multipart_memory"`
 }
