@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Expires" content="0" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Cache-control" content="no-cache" />
+		<meta http-equiv="Cache" content="no-cache" />
+		<title>
+			收银台
+		</title>
+		<style type="text/css">
+			html, body, .wrapper { color: #4d4b4b; font-family:'MicrosoftYahei'; } 
+			body { background: #fefefe } 
+			.wrapper { display: table;width: 100%; } 
+			.cell{display: table-cell;margin: 0;padding: 0;vertical-align:middle;} 
+			.tip{margin: 20px auto 50px;background-color: #ddffc5;width: 500px;border: 1px solid #c4e5c5;border-radius: 5px;line-height:40px;} 
+			a{text-decoration:none;color: #5f5f5f;font-weight: 200;margin: 0 5px;}
+			h4{margin: 20px auto 50px;padding:20px 0 10px;border-top:1px solid #cecece;width:500px;text-align: center;}
+			.top-ctn{text-align:center;padding:20px}
+			.logo-ctn{height: 84px;line-height: 44px;}
+			.logo{height: 84px;margin-right: 0;vertical-align: top;}
+			.top-desc{margin-top: 15px;margin-bottom: 10px;color: rgba(0,0,0,.45);font-size: 22px;}
+			.check {
+					width: 10px;
+					 height: 20px;
+					 border-color: #ffffff;
+					 border-style: solid;
+					 border-width: 0 2px 2px 0;
+					 transform: translate(14px,6px) rotate(45deg);
+				   }
+			.cross{ 
+					display: inline-block; 
+					width: 25px;
+					height:3px; 
+					background: #ffffff;
+					line-height: 0;
+					font-size:0;
+					vertical-align: middle;
+					transform: translate(7px,-4px) rotate(45deg);
+					-webkit-transform: translate(7px,-4px) rotate(45deg);
+					}
+			.cross:after{content:'/';display:block;width: 25px;height:3px; background: #ffffff;-webkit-transform: rotate(-90deg);}
+			.circle{
+					font-weight:600;
+				    width: 40px;
+				    height: 40px;
+				    font-size: 32px;
+				    background-color: #40ce18;
+				    color: #ffffff;
+				    border-radius: 50%;
+				    -moz-border-radius: 50%;
+				    -webkit-border-radius: 50%;
+				    top: 20px;
+				    left: 20px;
+				    font-family: monospace;
+				    position: relative;
+			}
+			.content{position:relative;top:-20px;left:70px; }
+			.money{color:#ff0000;}
+		</style>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="cell">
+				<div class="top-ctn">
+					<div class="logo-ctn">
+						<a href="#">
+							<img alt="logo" class="logo" src="{{ .contextPath }}/resource/img/logo.png">
+						</a>
+					</div>
+					<div class="top-desc">上海市教育认证中心</div>
+				</div>
+				<div class="tip">
+          {{if .error_msg }}
+          <div class='circle'><div class='cross'></div></div>
+					<div class='content'>注销失败：{{ .error_msg }}</span></div>
+          {{ else }}
+					<div class='circle'><div class='check'></div></div>
+					<div class='content'>注销成功</span></div>
+          {{ end }}
+				</div>
+				<h4>
+					<a href="https://eac.cloud.sh.edu.cn/" target="_blank" rel="noopener noreferrer">上海市教育认证中心</a>
+
+				</h4>
+			</div>
+		</div>
+	</body>
+
+</html>

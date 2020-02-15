@@ -35,3 +35,16 @@ func LoginHTML(errorMsg, captchaId string, c *gin.Context) {
 		"captcha_id":  captchaId,
 	})
 }
+
+/*
+LogoutHTML 登录页渲染
+*/
+func LogoutHTML(errorMsg string, c *gin.Context) {
+	location := GetLocation(c.Request)
+	contextPath := location.Scheme + "://" + location.Host
+
+	c.HTML(http.StatusOK, "logout.html", gin.H{
+		"contextPath": contextPath,
+		"error_msg":   errorMsg,
+	})
+}

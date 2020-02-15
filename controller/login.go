@@ -45,8 +45,7 @@ func loginGet(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	var errorMsg, captchaId string
-	redirectUri := c.Query("redirect_url")
+	var errorMsg string
 	session := sessions.Default(c)
 	s := session.Get("user_id")
 	if s != nil {
@@ -55,14 +54,11 @@ func logout(c *gin.Context) {
 		if err != nil {
 			errorMsg = g.LoginErrorDescription[g.ServerError]
 			log.Errorln("session save failed", err.Error())
-			midd.LoginHTML(errorMsg, captchaId, c)
+			midd.LogoutHTML(errorMsg, c)
 			return
 		}
 	}
-	if redirectUri == "" {
-		c.Redirect(http.StatusMovedPermanently, "https://idp-oauth.ecnu.edu.cn/")
-	}
-	c.Redirect(http.StatusMovedPermanently, redirectUri)
+	midd.LogoutHTML(errorMsg, c)
 }
 
 type loginInput struct {
