@@ -218,10 +218,10 @@ Response
 ```
 HTTP/1.1 200 OK
 {
-  "cn": "\u51af\u9a90", 
-  "sn": "\u51af\u9a90", 
-  "uid": "20006666", 
-  "memberOf": "staff", 
-  "sub": "20006666"
+  "cn": "小冯冯", 
+  "uid": "11116666", 
+  "memberOf": "教职工", 
+  "mail": "qfeng@exampe.org", 
+  "sub": "11116666"
 }
 ```
