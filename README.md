@@ -31,9 +31,9 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 需要 go 1.13 或开启 go module 的其他版本
 ```
 # git clone https://github.com/shanghai-edu/oauth-server-lite.git
-# cd oauth-server-listen
-# go build
+# cd oauth-server-lite
 # chmod +x control
+# ./control build
 # ./control pack
 ```
 
@@ -68,7 +68,7 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
         "bindDn": "cn=manager,dc=example,dc=org",
         "bindPass": "password",
         "authFilter": "(&(uid=%s))",
-        "attributes": ["uid", "cn", "mail"],
+        "attributes": ["uid", "cn", "mail"], # ldap 返回的属性。这部分会映射为 userinfo 的接口。如果留空则返回全部属性
         "tls":        false,
         "startTLS":   false
     },
