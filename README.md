@@ -96,9 +96,44 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 ```
 
 #### 运行
-
 ```
 ./control start
+```
+#### 反向代理
+通过 apache 或者 nginx 反向代理发布服务
+apache
+```
+        ProxyPreserveHost On
+        RequestHeader set X-Forwarded-Proto https
+        RemoteIPHeader X-Forwarded-For
+
+        ProxyPass "/resource/" "http://localhost:18080/resource/"
+        ProxyPass "/oauth/" "http://localhost:18080/oauth/"
+        ProxyPass "/user/" "http://localhost:18080/user/"
+```
+nginx
+```
+      location /oauth/ {
+          proxy_pass      http://localhost:18080/oauth/;
+              client_max_body_size    100m;
+              proxy_set_header X-Forwarded-For $remote_addr;
+              proxy_set_header Host            $http_host;
+              proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      location /user/ {
+          proxy_pass      http://localhost:18080/user/;
+              client_max_body_size    100m;
+              proxy_set_header X-Forwarded-For $remote_addr;
+              proxy_set_header Host            $http_host;
+              proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      location /resource/ {
+          proxy_pass      http://localhost:18080/resource/;
+              client_max_body_size    100m;
+              proxy_set_header X-Forwarded-For $remote_addr;
+              proxy_set_header Host            $http_host;
+              proxy_set_header X-Forwarded-Proto $scheme;
+        }
 ```
 
 #### 管理接口
@@ -123,4 +158,70 @@ ant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.
 ```
 # curl -X DELETE -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/client/4ee85cea19800426
 {"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
+```
+
+#### endpoint
+下列示例使用 google oauthplayground 测试
+oauth.example.org 取代实际的 oauth 服务器域名
+##### Authorization endpoint
+`/oauth/v1/authorize`
+Request
+```
+HTTP/1.1 302 Found
+Location: https://oauth.example.org/oauth/v1/authorize?state=158802&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&response_type=code&client_id=a3e9fdb53ffc9cb9&scope=Basic+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file&access_type=offline
+```
+Resopnse
+```
+GET /oauthplayground/?code=c834d0a96744f375&state=158802 HTTP/1.1
+Host: developers.google.com
+```
+##### Token endpoint
+`/oauth/v1/token`
+Request
+```
+POST /oauth/v1/token HTTP/1.1
+Host: oauth.example.org
+Content-length: 199
+content-type: application/x-www-form-urlencoded
+user-agent: google-oauth-playground
+code=c834d0a96744f375&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&client_id=a3e9fdb53ffc9cb9&client_secret=5dd6bcf253daae962430b0935207a471&scope=&grant_type=authorization_code
+```
+Response
+```
+HTTP/1.1 200 OK
+{
+  "access_token": "8c609be9897ca14c524bb8427ab41dfb", 
+  "token_type": "Bearer", 
+  "expires_in": 7200, 
+  "refresh_token": "1d6396466ee848ee860e9f540bcc2665e816355937005a5b95208094ca81c523", 
+  "scope": "Basic"
+}
+```
+##### userinfo endpoint
+`/oauth/v1/userinfo`
+GET Request
+```
+GET /oauth/v1/userinfo HTTP/1.1
+Host: oauth.example.org
+Content-length: 0
+Authorization: Bearer 8c609be9897ca14c524bb8427ab41dfb
+```
+POST Request
+```
+POST /oauth/v1/userinfo HTTP/1.1
+Host: oauth.example.org
+Content-length: 0
+Content-type: application/json
+Authorization: Bearer 8c609be9897ca14c524bb8427ab41dfb
+```
+Response
+```
+HTTP/1.1 200 OK
+{
+  "cn": "\u51af\u9a90", 
+  "sn": "\u51af\u9a90", 
+  "uid": "20006666", 
+  "memberOf": "staff", 
+  "sub": "20006666"
+}
 ```
