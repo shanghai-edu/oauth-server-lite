@@ -56,12 +56,8 @@ func CORS() gin.HandlerFunc {
 
 func NoCache() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		context.Writer.Header().Add("Cache-Control", "no-cache")
-
-		if context.Request.Method == "OPTIONS" {
-			context.AbortWithStatus(200)
-		} else {
-			context.Next()
-		}
+		context.Writer.Header().Add("Cache-Control", "no-store")
+		context.Writer.Header().Add("Pragma", "no-cache")
+		context.Next()
 	}
 }

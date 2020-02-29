@@ -1,7 +1,7 @@
 package g
 
 const (
-	VERSION = "0.2.2"
+	VERSION = "0.2.3"
 	SALT    = "ba6bb05c50e03f6b5ab54a2b7914800d"
 )
 
