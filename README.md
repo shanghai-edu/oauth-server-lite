@@ -138,8 +138,7 @@ nginx
 #### 管理接口
 ##### 创建 client
 ```
-# curl -H "X-API-KEY: shanghai-edu" -H "Content-Type: application/json" -d "{\"gr
-ant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.0.1:18080/manage/v1/client
+# curl -H "X-API-KEY: shanghai-edu" -H "Content-Type: application/json" -d "{\"grant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.0.1:18080/manage/v1/client
 
 {"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
 ```
