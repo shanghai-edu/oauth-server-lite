@@ -1,7 +1,8 @@
 {
 	"log_level": "info",
 	"db": {
-		"dsn": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",
+		"sqlite":"sqlite.db",
+		"mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",
 		"db_debug": false
 	},
 	"redis": {

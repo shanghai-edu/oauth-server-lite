@@ -47,7 +47,8 @@ type LdapConfig struct {
 DBConfig DB 配置
 */
 type DBConfig struct {
-	Dsn     string `json:"dsn"`
+	Sqlite  string `json:"sqlite"`
+	Mysql   string `json:"mysql"`
 	DBDebug bool   `json:"db_debug"`
 }
 

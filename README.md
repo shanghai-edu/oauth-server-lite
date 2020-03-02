@@ -14,21 +14,8 @@
 # systemctl enable redis
 ```
 
-#### 安装 mysql(mariadb)
-```
-# yum install mariadb mariadb-server 
-# systemctl start mariadb
-# mysql_secure_installation 
-# systemctl enable mariadb
-```
-
-#### 初始化表结构,
-```
-mysql -h 127.0.0.1 -u root -p < oauth.sql
-```
-
 #### 编译安装
-需要 go 1.13 或开启 go module 的其他版本
+需要 go 1.13+ 或开启 go module 的其他版本
 ```
 # git clone https://github.com/shanghai-edu/oauth-server-lite.git
 # cd oauth-server-lite
@@ -45,8 +32,9 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 {
 	"log_level": "info", # info/warn/debug 三种
 	"db": {
-		"dsn": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local", #数据库连接
-		"db_debug": false # true 会输出 sql 信息
+		"sqlite":"sqlite.db", # 只要不为空，则使用 sqlite 模式，存储到字段中的 sqlite 文件中
+		"mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local", # 使用 mysql 模式时的数据库连接参数
+		"db_debug": false # true 时会输出详细的 sql debug
 	},
 	"redis": {
 		"dsn": "127.0.0.1:6379",
@@ -95,10 +83,21 @@ mysql -h 127.0.0.1 -u root -p < oauth.sql
 }
 ```
 
-#### 运行
+#### sqlite 模式
 ```
 ./control start
 ```
+#### mysql 模式
+首次运行前，先初始化表结构。注意 -i 命令会重建数据表初始化，之前的数据会丢失。慎用
+```
+./oauth-server-lite -i
+```
+然后正常运行启动脚本
+```
+./control start
+```
+
+
 #### 反向代理
 通过 apache 或者 nginx 反向代理发布服务
 apache

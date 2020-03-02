@@ -10,6 +10,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jinzhu/gorm v1.9.12
+	github.com/mattn/go-sqlite3 v2.0.1+incompatible
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/toolkits/file v0.0.0-20160325033739-a5b3c5147e07
