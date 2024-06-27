@@ -14,33 +14,16 @@ import (
 GlobalConfig 全局配置
 */
 type GlobalConfig struct {
-	LogLevel               string                `json:"log_level"`
-	DB                     *DBConfig             `json:"db"`
-	Redis                  *RedisConfig          `json:"redis"`
-	RedisNamespace         *RedisNamespaceConfig `json:"redis_namespace"`
-	LDAP                   *LdapConfig           `json:"ldap"`
-	Http                   *HttpConfig           `json:"http"`
-	MaxFailed              int64                 `json:"max_failed"`
-	FailedIntervel         int64                 `json:"failed_intervel"`
-	LockTime               int64                 `json:"lock_time"`
-	AccessTokenExpired     int64                 `json:"access_token_expired"`
-	OldAccessTokenExpired  int64                 `json:"old_access_token_expired"`
-	RefreshTokenExpiredDay int64                 `json:"refresh_token_expired_day"`
-	CodeExpired            int64                 `json:"code_expired"`
-}
-
-/*
-LdapConfig LDAP 配置
-*/
-type LdapConfig struct {
-	Addr       string   `json:"addr"`
-	BaseDn     string   `json:"baseDn"`
-	BindDn     string   `json:"bindDn`
-	BindPass   string   `json:"bindPass"`
-	AuthFilter string   `json:"authFilter"`
-	Attributes []string `json:"attributes"`
-	TLS        bool     `json:"tls"`
-	StartTLS   bool     `json:"startTLS"`
+	Logger                 LoggerSection        `json:"logger"`
+	CAS                    string               `json:"cas"`
+	DB                     DBConfig             `json:"db"`
+	Redis                  RedisConfig          `json:"redis"`
+	RedisNamespace         RedisNamespaceConfig `json:"redis_namespace"`
+	Http                   HttpConfig           `json:"http"`
+	AccessTokenExpired     int64                `json:"access_token_expired"`
+	OldAccessTokenExpired  int64                `json:"old_access_token_expired"`
+	RefreshTokenExpiredDay int64                `json:"refresh_token_expired_day"`
+	CodeExpired            int64                `json:"code_expired"`
 }
 
 /*
@@ -69,9 +52,6 @@ RedisNamespaceConfig Redis 命名空间配置
 */
 type RedisNamespaceConfig struct {
 	OAuth string `json:"oauth"`
-	Cache string `json:"cache"`
-	Lock  string `json:"lock"`
-	Fail  string `json:"fail"`
 }
 
 /*
@@ -81,6 +61,7 @@ type HttpConfig struct {
 	Listen             string                `json:"listen"`
 	ManageIP           []string              `json:"manage_ip"`
 	XAPIKey            string                `json:"x-api-key"`
+	TrustProxy         []string              `json:"trust_proxy"`
 	SessionOptions     *SessionOptionsConfig `json:"session_options"`
 	MaxMultipartMemory int                   `json:"max_multipart_memory"`
 }
@@ -140,5 +121,4 @@ func ParseConfig(cfg string) {
 	defer lock.Unlock()
 
 	config = &c
-
 }

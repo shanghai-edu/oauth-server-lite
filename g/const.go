@@ -1,12 +1,19 @@
 package g
 
 const (
-	VERSION = "0.3"
-	SALT    = "ba6bb05c50e03f6b5ab54a2b7914800d"
+	VERSION      = "0.13.6"
+	SALT         = "ba6bb05c50e03f6b5ab54a2b7914800d"
+	DefaultScope = "ECNU-Basic"
 )
 
 const (
+	Code                    = "code"
 	SUB                     = "sub"
+	ClientCredentials       = "client_credentials"
+	AuthorizationCode       = "authorization_code"
+	Password                = "password"
+	DeviceFlow              = "urn:ietf:params:oauth:grant-type:device_code"
+	RefreshToken            = "refresh_token"
 	InvalidPassword         = "invalid_password"
 	IpLocked                = "ip_locked"
 	InvalidCaptcha          = "invalid_captcha"
@@ -16,10 +23,11 @@ const (
 	InvalidGrant            = "invalid_grant"
 	InvalidScope            = "invalid_scope"
 	InvalidToken            = "invalid_token"
-	InvaildRedirectUrl      = "invalid_redirect_url"
+	InvalidRedirectUrl      = "invalid_redirect_url"
 	UnauthorizedClient      = "unauthorized_client"
 	UnsupportedGrantType    = "unsupported_grant_type"
 	UnsupportedResponseType = "unsupported_response_type"
+	UnsupportedMethod       = "unsupported_method"
 	AccessDenied            = "access_denied"
 	ServerError             = "server_error"
 	InvalidAPIKey           = "invalid_api_key"
@@ -36,7 +44,7 @@ var OauthErrorDescription = map[string]string{
 	InvalidRequest:          "请求缺少必需的参数、包含不支持的参数值（除了许可类型）、重复参数、包含多个凭据、采用超过一种客户端身份验证机制或其他不规范的格式",
 	InvalidClient:           "客户端身份验证失败（例如，未知的客户端，不包含客户端身份验证，或不支持的身份验证方）",
 	InvalidIP:               "请求的 IP 地址不在授权白名单内",
-	InvaildRedirectUrl:      "请求的重定向 URL 格式不合法",
+	InvalidRedirectUrl:      "请求的重定向 URL 格式不合法",
 	InvalidGrant:            "提供的授权许可（如授权码、资源所有者凭据）或刷新令牌无效、过期、吊销、与在授权请求使用的重定向 URI 不匹配或颁发给另一个客户端",
 	InvalidScope:            "请求的范围无效、未知的、格式不正确或超出资源所有者许可的范围",
 	InvalidToken:            "令牌无效或者已经过期",
@@ -46,4 +54,5 @@ var OauthErrorDescription = map[string]string{
 	AccessDenied:            "授权服务器拒绝该请求",
 	ServerError:             "服务器内部错误",
 	InvalidAPIKey:           "错误的 X-API-KEY",
+	InvalidPassword:         "用户名或密码不正确",
 }

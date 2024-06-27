@@ -10,27 +10,24 @@ import (
 )
 
 func InitGin(listen string) (httpServer *http.Server) {
-	gin.DisableConsoleColor()
-	if g.Config().LogLevel == "debug" {
-		gin.SetMode(gin.DebugMode)
+	if g.Config().Logger.Level == "DEBUG" {
+		gin.SetMode((gin.DebugMode))
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
 	r := gin.New()
-	if g.Config().LogLevel == "debug" || g.Config().LogLevel == "info" {
+	if g.Config().Logger.Level == "DEBUG" {
 		r.Use(gin.Logger())
 	}
+	r.SetTrustedProxies(g.Config().Http.TrustProxy)
 
-	r.MaxMultipartMemory = 100
 	r.Use(gin.Recovery())
 	r.Use(CORS())
-	Routes(r)
 
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, fmt.Sprintf("api-gateway version %s", g.VERSION))
+		c.String(http.StatusOK, fmt.Sprintf("oauth-server-demo version %s", g.VERSION))
 	})
-
+	Routes(r)
 	httpServer = &http.Server{
 		Addr:    g.Config().Http.Listen,
 		Handler: r,

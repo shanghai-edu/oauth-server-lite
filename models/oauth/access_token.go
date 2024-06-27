@@ -3,19 +3,21 @@ package oauth
 import (
 	"encoding/json"
 	"errors"
-	"time"
-
+	"github.com/toolkits/pkg/logger"
 	"oauth-server-lite/g"
 	"oauth-server-lite/models/utils"
+	"strconv"
+	"time"
 )
 
 type Token struct {
 	AccessToken  string `json:"access_token"`
+	AppId        string `json:"app_id"`
 	UserID       string `json:"user_id"`
 	TokenType    string `json:"token_type"`
 	GrantType    string `json:"grant_type"`
 	ExpiresIn    int64  `json:"expires_in"`
-	RefreshToken string `json:"refresh_token`
+	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
 }
 
@@ -39,23 +41,26 @@ func SaveAccessTokenDB(token OauthAccessToken) error {
 
 func UpdateAccessTokenDB(token OauthAccessToken) error {
 	db := g.ConnectDB()
-	err := db.Model(&token).Update(token).Error
+	err := db.Model(&token).Updates(token).Error
 	return err
 }
 
-//CleanAccessToken 清理旧的token
-//检查 redis 内的 token 有效期，如果超过 300 秒就修改到300秒。
-//这样新 token 颁发后，确保老 token 还有 300 秒有效期
+// CleanAccessToken 清理旧的token
+// 检查 redis 内的 token 有效期，如果超过 300 秒就修改到300秒。
+// 这样新 token 颁发后，确保老 token 还有 300 秒有效期
 func CleanAccessToken(token string) (err error) {
 	redisKey := g.Config().RedisNamespace.OAuth + "access_token:" + token
+	logger.Debugf("clean rediskey: %s", redisKey)
 	rc := g.ConnectRedis().Get()
 	defer rc.Close()
 	expire, err := rc.Do("TTL", redisKey)
 	if err != nil {
 		return
 	}
+	logger.Debugf("rediskey %s, ttl is %v, old access token expired config is %d", redisKey, expire.(int64), g.Config().OldAccessTokenExpired)
 	if expire.(int64) > g.Config().OldAccessTokenExpired {
 		_, err = rc.Do("EXPIRE", redisKey, 300)
+		logger.Debugf("set rediskey ttl to 300, err is %v", err)
 	}
 	return
 }
@@ -74,7 +79,8 @@ func UpdateRefreshToken(clientID, userID, refreshToken string) (err error) {
 func UpdateAccessToken(clientID, userID, scope, accessToken string) (err error) {
 	acToken := GetAccessTokenByClient(clientID, userID)
 	if acToken.ID != 0 {
-		if err = CleanAccessToken(accessToken); err != nil {
+		logger.Debugf("goto clean access token:%s", acToken.AccessToken)
+		if err = CleanAccessToken(acToken.AccessToken); err != nil {
 			return
 		}
 	}
@@ -88,8 +94,8 @@ func UpdateAccessToken(clientID, userID, scope, accessToken string) (err error) 
 	return
 }
 
-//CreateToken 创建 token
-func CreateToken(clientID, userID string) (token Token, err error) {
+// CreateToken 创建 token
+func CreateToken(clientID, userID, grantType string) (token Token, err error) {
 	//查找注册应用
 	oauthClient := GetClientByClientID(clientID)
 	if oauthClient.ID == 0 {
@@ -103,14 +109,13 @@ func CreateToken(clientID, userID string) (token Token, err error) {
 		return
 	}
 
-	//更新 access_token
-	if err = UpdateAccessToken(clientID, userID, oauthClient.Scope, accessToken); err != nil {
-		return
-	}
-
 	//authorization_code 模式下，更新 refresh_token
 	var refreshToken string
-	if oauthClient.GrantType == "authorization_code" {
+	if grantType != g.ClientCredentials {
+		//只在 authorization_code 和 password 模式下更新数据库内的token，client_credentials 模式直接进 redis
+		if err = UpdateAccessToken(clientID, userID, oauthClient.Scope, accessToken); err != nil {
+			return
+		}
 		//生成一个 64 位的 refresh_token
 		refreshToken, err = utils.RandHashString(g.SALT, 64)
 		if err != nil {
@@ -125,7 +130,8 @@ func CreateToken(clientID, userID string) (token Token, err error) {
 	token = Token{
 		AccessToken:  accessToken,
 		TokenType:    "Bearer",
-		GrantType:    oauthClient.GrantType,
+		GrantType:    grantType,
+		AppId:        strconv.FormatInt(oauthClient.AppId, 10),
 		UserID:       userID,
 		ExpiresIn:    g.Config().AccessTokenExpired,
 		RefreshToken: refreshToken,
@@ -135,7 +141,7 @@ func CreateToken(clientID, userID string) (token Token, err error) {
 	return
 }
 
-//SetAccessToken 向 redis 内写入 Token
+// SetAccessToken 向 redis 内写入 Token
 func SetAccessToken(token Token) (err error) {
 	bs, err := json.Marshal(token)
 	if err != nil {
@@ -148,7 +154,7 @@ func SetAccessToken(token Token) (err error) {
 	return
 }
 
-//GetToken 从 redis 获取 Token
+// GetToken 从 redis 获取 Token
 func GetAccessToken(accessToken string) (token Token, err error) {
 	redisKey := g.Config().RedisNamespace.OAuth + "access_token:" + accessToken
 	rc := g.ConnectRedis().Get()

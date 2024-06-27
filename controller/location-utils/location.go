@@ -1,4 +1,4 @@
-package midd
+package location_utils
 
 import (
 	"net/http"

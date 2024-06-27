@@ -1,14 +1,11 @@
 package utils
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
-	"math/big"
-
-	"github.com/satori/go.uuid"
+	"github.com/gofrs/uuid"
 )
 
 // HashString 按 sha256 加盐生成 hash 字符串
@@ -25,9 +22,10 @@ func RandHashString(salt string, l int) (hashedString string, err error) {
 		err = errors.New("lengh is must bigger than 0")
 		return
 	}
-
-	u1 := uuid.NewV4()
-
+	u1, err := uuid.NewV4()
+	if err != nil {
+		return
+	}
 	//先按 uuidv4 生成随机的 uuid 字符串，再加盐哈希
 	str := HashString(u1.String(), salt)
 	if l > len(str) {
@@ -38,12 +36,9 @@ func RandHashString(salt string, l int) (hashedString string, err error) {
 	return
 }
 
-//GenerateVcode 生成6位随机数字字符串
-func GenerateVcode() (vcode string, err error) {
-	result, err := rand.Int(rand.Reader, big.NewInt(1000000))
-	if err != nil {
-		return
-	}
-	vcode = fmt.Sprintf("%06v", result)
-	return
+func Sha256(input string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(input))
+	hashed := hasher.Sum(nil)
+	return base64.RawURLEncoding.EncodeToString(hashed)
 }
