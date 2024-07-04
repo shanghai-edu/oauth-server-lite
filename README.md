@@ -87,7 +87,7 @@
 ```
 ./control start
 ```
-#### mysql 模式
+#### mysql 模式 ???
 首次运行前，先初始化表结构。注意 -i 命令会重建数据表初始化，之前的数据会丢失。慎用
 ```
 ./oauth-server-lite -i
