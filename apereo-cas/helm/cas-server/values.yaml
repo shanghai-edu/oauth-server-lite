@@ -330,7 +330,7 @@ bootAdminContainer:
   ## Create various config files from casConfig that may or may not be mounted
   casConfig:
     application.properties: |-
-      server.ssl.enabled=true
+      server.ssl.enabled=false
       server.ssl.key-store=file:/etc/cas/thekeystore
       server.ssl.key-store-type=PKCS12
       server.ssl.key-store-password=changeit
@@ -470,7 +470,7 @@ mgmtContainer:
   ## Create various config files from casConfig that may or may not be mounted
   casConfig:
     application-standalone.properties: |-
-      server.ssl.enabled=true
+      server.ssl.enabled=false
       server.ssl.key-store=file:/etc/cas/thekeystore
       server.ssl.key-store-type=PKCS12
       server.ssl.key-store-password=changeit

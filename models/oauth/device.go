@@ -6,6 +6,7 @@ import (
 	"oauth-server-lite/controller/location-utils"
 	"oauth-server-lite/g"
 	"oauth-server-lite/models/utils"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/toolkits/pkg/logger"
@@ -39,7 +40,12 @@ func CreateDeviceCode(c *gin.Context, inputs DeviceCodeInput) (deviceCodeOutput 
 	}
 
 	location := location_utils.GetLocation(c.Request)
-	verificationUri := location.Scheme + "://" + location.Host + "/user/device/authorize"
+	// 先读取环境变量，没有的话设置为location.Host
+	verificationUriHost := os.Getenv("CLIENT_HOST")
+	if verificationUriHost == "" {
+		verificationUriHost = location.Host
+	}
+	verificationUri := location.Scheme + "://" + verificationUriHost + "/user/device/authorize"
 	deviceCodeOutput = DeviceCodeOutput{
 		DeviceCode:      deviceCode,
 		UserCode:        userCode,
