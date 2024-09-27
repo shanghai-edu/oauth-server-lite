@@ -3,14 +3,12 @@ package oauth
 import (
 	//	"encoding/json"
 	"log"
-	"testing"
-
 	"oauth-server-lite/g"
 )
 
 func init() {
 	g.ParseConfig("cfg.json")
-	err := g.InitDB(g.Config().DB.DBDebug)
+	err := g.InitDB()
 	if err != nil {
 		log.Fatalf("db conn failed with error %s", err.Error())
 	}

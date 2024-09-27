@@ -2,45 +2,77 @@ package g
 
 import (
 	"fmt"
-	//引入 mysql 驱动
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-
-	//引入 sqlite 驱动
-	_ "github.com/mattn/go-sqlite3"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+	"log"
+	"os"
+	"time"
 )
 
-var dbp *gorm.DB
+var (
+	dbp *gorm.DB
+)
 
-//Conn 给其他模块调用的连接池获取方法
 func ConnectDB() *gorm.DB {
 	return dbp
 }
 
-//InitDB 初始化数据库连接池
-func InitDB(loggerlevel bool) error {
-	if Config().DB.Sqlite != "" {
-		db, err := gorm.Open("sqlite3", Config().DB.Sqlite)
-		if err != nil {
-			return fmt.Errorf("connect to db: %s", err.Error())
+func InitDB() (err error) {
+	var loggerConfig logger.Config
+	var db *gorm.DB
+	if Config().DB.DBDebug {
+		loggerConfig = logger.Config{
+			SlowThreshold: time.Second, // 慢 SQL 阈值
+			LogLevel:      logger.Info, // Log level
+			Colorful:      false,       // 禁用彩色打印
 		}
-		db.LogMode(loggerlevel)
-		db.SingularTable(true)
-		dbp = db
-		return nil
+	} else {
+		loggerConfig = logger.Config{
+			SlowThreshold: time.Second,   // 慢 SQL 阈值
+			LogLevel:      logger.Silent, // Log level
+			Colorful:      false,         // 禁用彩色打印
+		}
 	}
-	db, err := gorm.Open("mysql", Config().DB.Mysql)
-	if err != nil {
-		return fmt.Errorf("connect to db: %s", err.Error())
+
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		loggerConfig,
+	)
+
+	ormConfig := &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+		Logger: newLogger,
 	}
-	db.LogMode(loggerlevel)
-	db.SingularTable(true)
+	// 根据Config().DB.sqlite值是否为空选择数据库初始化类型
+	if Config().DB.Sqlite != "" {
+		db, err = gorm.Open(sqlite.Open(Config().DB.Sqlite), ormConfig)
+		if err != nil {
+			return fmt.Errorf("connect to sqlite db: %s", err.Error())
+		}
+	} else {
+		db, err = gorm.Open(mysql.New(mysql.Config{
+			DSN:               Config().DB.Mysql,
+			DefaultStringSize: 256,
+		}), ormConfig)
+		if err != nil {
+			return fmt.Errorf("connect to MySQL db: %s", err.Error())
+		}
+	}
 	dbp = db
 	return nil
 }
 
-//CloseDB 关闭数据库连接池
 func CloseDB() (err error) {
-	err = dbp.Close()
+	sqldb, err := dbp.DB()
+	if err != nil {
+		return
+	}
+	err = sqldb.Close()
+
 	return
 }

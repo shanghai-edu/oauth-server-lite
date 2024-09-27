@@ -1,19 +1,27 @@
 package g
 
-import log "github.com/sirupsen/logrus"
+import (
+	"fmt"
+	"os"
 
-/*
-InitLog 初始化日志
-*/
-func InitLog(level string) {
-	switch level {
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	default:
-		log.Fatal("log conf only allow [info, debug, warn], please check your configure")
+	"github.com/toolkits/pkg/logger"
+)
+
+type LoggerSection struct {
+	Dir       string `json:"dir"`
+	Level     string `json:"level"`
+	KeepHours uint   `json:"keepHours"`
+}
+
+func InitLog(l LoggerSection) {
+
+	lb, err := logger.NewFileBackend(l.Dir)
+	if err != nil {
+		fmt.Println("cannot init logger:", err)
+		os.Exit(1)
 	}
+	lb.SetRotateByHour(true)
+	lb.SetKeepHours(l.KeepHours)
+
+	logger.SetLogging(l.Level, lb)
 }

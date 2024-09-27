@@ -1,0 +1,46 @@
+<script src="https://wow.techbrood.com/libs/jquery/jquery-1.11.1.min.js"></script><head>
+<link rel="stylesheet" type="text/css" href="{{ .contextPath }}/resource/default.css">
+</head>
+<div class="wrapper">
+	<div class="header">
+	<img src="{{ .contextPath }}/resource/logo.svg">
+	<div id="title"><strong>数据开放平台</strong></div>
+	</div>
+<div class="container">
+    <div class="task__head task--row">请求获取您({{ .user_id}})的以下信息：</div>
+	<form action="/user/authorize" method="post">	
+	<div class="grid">
+	{{ range $v := .auth_apis }}	
+    <label class="card">
+        <input class="card__input" name="authorize[]" type="checkbox" value="{{$v.ApiId }}" id="{{$v.ApiId }}"
+		checked disabled/>
+        <div class="card__body">
+            <div class="card__body-cover"><span class="card__body-cover-checkbox"> 
+          <svg class="card__body-cover-checkbox--svg" viewBox="0 0 12 10">
+            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+          </svg></span>
+            </div>
+            <header class="card__body-header">
+                <h2 class="card__body-header-title">{{$v.ApiName }}</h2>
+            </header>
+        </div>
+    </label>
+	{{end}}
+	
+	<div class="shouquanwenzi">
+	授权后表明您已同意<a href="#">隐私协议</a>
+	</div>
+	<div class="xuanze">
+	<input type="checkbox" name="ischoose" checked/>记住我的选择
+	</div>
+	<div class="btn-loc">
+	<button type="submit" name="isauthorize" value="1" class="layui-btn layui-btn-primary">同意授权</button>
+	<button type="submit" name="isauthorize" value="0" class="layui-btn layui-btn-primary2">不同意授权</button>
+	</div>
+	</form>
+</div>
+</div>
+<div class="bottom">
+	<div id="copyright">Copyright©2021 华东师范大学信息化治理办公室</div>
+	</div>
+</div>

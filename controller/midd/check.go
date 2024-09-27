@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
+	"net/url"
+	"oauth-server-lite/controller/location-utils"
 	"strings"
 
 	"oauth-server-lite/g"
@@ -11,9 +13,9 @@ import (
 	"oauth-server-lite/models/utils"
 
 	"github.com/gin-contrib/sessions"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gin-gonic/gin"
+	"github.com/toolkits/pkg/logger"
+	"oauth-server-lite/models/cas"
 )
 
 func OauthTokenCheckMidd(c *gin.Context) {
@@ -21,7 +23,7 @@ func OauthTokenCheckMidd(c *gin.Context) {
 	postToken := c.PostForm("access_token")
 	getToken := c.Query("access_token")
 	if headerToken != "" {
-		ht := strings.TrimPrefix(headerToken, "Bearer ")
+		ht := strings.TrimPrefix(strings.ToLower(headerToken), "bearer ")
 		if checkToken(ht) {
 			c.Set("access_token", ht)
 			c.Next()
@@ -43,8 +45,7 @@ func OauthTokenCheckMidd(c *gin.Context) {
 }
 
 func checkToken(accessToken string) bool {
-	ac, err := oauth.GetAccessToken(accessToken)
-	log.Debug(ac)
+	_, err := oauth.GetAccessToken(accessToken)
 	if err == nil {
 		return true
 	} else {
@@ -72,25 +73,149 @@ func checkXApiKey(key string) bool {
 }
 
 func AuthorizeLoginCheck(c *gin.Context) {
-	location := GetLocation(c.Request)
+	location := location_utils.GetLocation(c.Request)
 	session := sessions.Default(c)
 	s := session.Get("user_id")
 	currentURL := location.Scheme + "://" + location.Host + c.Request.URL.Path + "?" + c.Request.URL.RawQuery
-	log.Debugf("/oauth/authorize: %s", currentURL)
+	logger.Debugf("/oauth/authorize: %s", currentURL)
 
-	if s == nil {
+	isAuthorized := session.Get("is_authorized")
+	logger.Debugf("user_id = %v, is_authorized = %v", s, isAuthorized)
+
+	if s == nil || isAuthorized == nil {
 		session.Set("current_url", currentURL)
-		log.Debugln(session.Get("current_url"))
+		session.Set("client_id", c.Query("client_id"))
+		logger.Debug(session.Get("current_url"))
 		if err := session.Save(); err != nil {
 			c.JSON(http.StatusInternalServerError, OauthErrorRes(g.ServerError))
+			c.Abort()
 			return
 		}
-		loginPath := location.Scheme + "://" + location.Host + "/user/login"
-		c.Redirect(http.StatusMovedPermanently, loginPath)
+
+		service := location.Scheme + "://" + location.Host + "/user/authorize"
+		casLogin := g.Config().CAS + "login?service=" + service
+		c.Redirect(http.StatusMovedPermanently, casLogin)
 		return
+
 	}
 	c.Set("user_id", s.(string))
 	c.Next()
+}
+
+func DeviceAuthorizeLoginCheck(inputs oauth.DeviceTokenInput, c *gin.Context) (userId string, err error) {
+	location := location_utils.GetLocation(c.Request)
+	session := sessions.Default(c)
+
+	rc := g.ConnectRedis().Get()
+	defer rc.Close()
+	// 尝试从redis中通过DeviceCode获取UserID
+	userIdKey := g.Config().RedisNamespace.OAuth + "device_user_id:" + inputs.DeviceCode
+	redisUserId, err := rc.Do("GET", userIdKey)
+	if err != nil {
+		logger.Error(err)
+		err = errors.New(g.ServerError)
+		return
+	}
+	if redisUserId == nil {
+		session.Set("client_id", inputs.ClientID)
+		if err = session.Save(); err != nil {
+			c.JSON(http.StatusInternalServerError, OauthErrorRes(g.ServerError))
+			c.Abort()
+			return
+		}
+		service := location.Scheme + "://" + location.Host + "/user/device/authorize"
+		casLogin := g.Config().CAS + "login?service=" + service
+		c.Redirect(http.StatusMovedPermanently, casLogin)
+	}
+	userIdBytes, isSuccess := redisUserId.([]byte)
+	if !isSuccess {
+		err = errors.New(g.ServerError)
+		logger.Error("transfer to []byte failed:" + err.Error())
+		return
+	}
+	userId = string(userIdBytes)
+
+	if err = c.Bind(&inputs); err != nil {
+		c.JSON(http.StatusBadRequest, OauthErrorRes(g.InvalidRequest))
+		return
+	}
+	isAuthorizedKey := g.Config().RedisNamespace.OAuth + "device_is_authorized:" + inputs.DeviceCode
+	redisIsAuthorized, err := rc.Do("GET", isAuthorizedKey)
+	if err != nil {
+		logger.Error(err)
+		err = errors.New(g.ServerError)
+		return
+	}
+	var isAuthorized string
+	if redisIsAuthorized != nil {
+		isAuthorizedBytes, isSuccess := redisIsAuthorized.([]byte)
+		if !isSuccess {
+			err = errors.New(g.ServerError)
+			logger.Error("transfer to []byte failed:" + err.Error())
+			return
+		}
+		isAuthorized = string(isAuthorizedBytes)
+	}
+
+	if isAuthorized != "1" {
+		err = errors.New(g.InvalidGrant)
+		return
+	}
+	return
+}
+
+// 根据type分区Service
+func CASLoginCheckWithType(c *gin.Context, serviceType string) {
+	location := location_utils.GetLocation(c.Request)
+	session := sessions.Default(c)
+	s := session.Get("user_id")
+	if s == nil {
+		var userId string
+
+		var err error
+		ticket := c.Query("ticket")
+		if ticket == "" {
+			redirectToCASLogin(c, serviceType)
+			return
+		}
+
+		service := location.Scheme + "://" + location.Host + c.Request.URL.Path
+		userId, err = validateServiceTicket(ticket, service)
+		// 有时会校验失败
+		if err != nil {
+			logger.Error(err)
+			redirectToCASLogin(c, serviceType)
+			return
+		}
+
+		session.Set("user_id", userId)
+		if err := session.Save(); err != nil {
+			errorMsg := g.LoginErrorDescription[g.ServerError]
+			ErrorHTML(errorMsg, c)
+			c.Abort()
+			return
+		}
+		c.Set("user_id", userId)
+		c.Next()
+	} else {
+		c.Set("user_id", s.(string))
+		c.Next()
+	}
+}
+
+func redirectToCASLogin(c *gin.Context, serviceType string) {
+	location := location_utils.GetLocation(c.Request)
+	var service string
+	switch serviceType {
+	case g.AuthorizationCode:
+		service = location.Scheme + "://" + location.Host + "/user/authorize"
+	case g.DeviceFlow:
+		service = location.Scheme + "://" + location.Host + "/user/device/authorize"
+	default:
+		service = location.Scheme + "://" + location.Host + "/user/authorize"
+	}
+	casLogin := g.Config().CAS + "login?service=" + service
+	c.Redirect(http.StatusMovedPermanently, casLogin)
 }
 
 func BasicAuthResolve(r *http.Request) (username, password string, err error) {
@@ -112,5 +237,29 @@ func BasicAuthResolve(r *http.Request) (username, password string, err error) {
 		password = split[1]
 		return
 	}
+	return
+}
+
+func validateServiceTicket(ticket, service string) (userID string, err error) {
+	casUrl, err := url.Parse(g.Config().CAS)
+	if err != nil {
+		return
+	}
+	serviceUrl, err := url.Parse(service)
+	if err != nil {
+		return
+	}
+
+	resOptions := &cas.RestOptions{
+		CasURL:     casUrl,
+		ServiceURL: serviceUrl,
+	}
+	resClient := cas.NewRestClient(resOptions)
+
+	res, err := resClient.ValidateServiceTicket(cas.ServiceTicket(ticket))
+	if err != nil {
+		return
+	}
+	userID = res.User
 	return
 }

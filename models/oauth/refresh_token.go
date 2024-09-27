@@ -2,9 +2,8 @@ package oauth
 
 import (
 	"errors"
-	"time"
-
 	"oauth-server-lite/g"
+	"time"
 )
 
 func GetRefreshTokenByClient(clientID, userID string) (token OauthRefreshToken) {
@@ -33,7 +32,7 @@ func SaveRefreshTokenDB(token OauthRefreshToken) error {
 
 func UpdateRefreshTokenDB(token OauthRefreshToken) error {
 	db := g.ConnectDB()
-	err := db.Model(&token).Update(token).Error
+	err := db.Model(&token).Updates(token).Error
 	return err
 }
 
@@ -47,6 +46,7 @@ func RefreshAccessToken(refreshToken string) (token Token, err error) {
 		err = errors.New("refresh_token is expired")
 		return
 	}
-	token, err = CreateToken(rfToken.ClientID, rfToken.UserID)
+	//只有 authorization_code 才有 refresh_token
+	token, err = CreateToken(rfToken.ClientID, rfToken.UserID, g.AuthorizationCode)
 	return
 }
