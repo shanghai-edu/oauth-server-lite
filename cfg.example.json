@@ -1,5 +1,10 @@
 {
-	"log_level": "info",
+	"logger": {
+		"dir": "logs/",
+		"level": "DEBUG",
+		"keepHours": 24
+	},
+	"cas": "http://localhost:8444/cas/",
 	"db": {
 		"sqlite":"sqlite.db",
 		"mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",
