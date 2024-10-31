@@ -15,8 +15,8 @@ import (
 type OauthClient struct {
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	GrantType    string `json:"grant_type"`
-	Domain       string `json:"domain"`
+	GrantTypes   string `json:"grant_types"`
+	Domains      string `json:"domains"`
 	WhiteIP      string `json:"white_ip"`
 	Scope        string `json:"scope"`
 	Description  string `json:"description"`
