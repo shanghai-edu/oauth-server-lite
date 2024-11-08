@@ -2,8 +2,8 @@ package g
 
 import (
 	"fmt"
+	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -63,6 +63,18 @@ func InitDB() (err error) {
 			return fmt.Errorf("connect to MySQL db: %s", err.Error())
 		}
 	}
+
+	// 测试是否能 ping 通 db
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql.DB instance: %v", err)
+	}
+	if err := sqlDB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping the database: %v", err)
+	}
+
+	log.Println("Database connection is healthy.")
+
 	dbp = db
 	return nil
 }
