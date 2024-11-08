@@ -1,7 +1,7 @@
 target/**
 build/**
 bin/**
+.gradle/**
 .idea/**
 .history/**
 .github/**
-.git/**
