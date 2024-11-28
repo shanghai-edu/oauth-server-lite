@@ -195,6 +195,18 @@ task copyCasConfiguration(type: Copy, group: "CAS",
     }
 }
 
+task copyCasServices(type: Copy, group: "CAS",
+        description: "Copy the CAS services from this project to /etc/cas/services") {
+    from "etc/cas/services"
+    into new File('/etc/cas/services').absolutePath
+    doFirst {
+        new File('/etc/cas/services').mkdirs()
+    }
+}
+
+task copyCas(type: Task, group: "CAS", description: "Copy the CAS configuration and services to /etc/cas") {
+    dependsOn copyCasConfiguration, copyCasServices
+}
 
 def tomcatDirectory = "${buildDir}/apache-tomcat-${tomcatVersion}"
 project.ext."tomcatDirectory" = tomcatDirectory

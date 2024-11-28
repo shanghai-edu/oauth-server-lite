@@ -7,11 +7,10 @@
 	"cas": "http://localhost:8444/cas/",
 	"db": {
 		"sqlite":"sqlite.db",
-		"mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",
 		"db_debug": false
 	},
 	"redis": {
-		"dsn": "127.0.0.1:6379",
+		"dsn": "localhost:6379",
 		"max_idle": 5,
 		"conn_timeout": 5,
 		"read_timeout": 5,
@@ -25,12 +24,12 @@
 		"fail": "fail:"
 	},
 	"http": {
-		"listen": "0.0.0.0:8081",
+		"listen": "0.0.0.0:8080",
 		"manage_ip": ["127.0.0.1"],
 		"x-api-key": "shanghai-edu",
 		"session_options": {
 			"path": "/",
-			"domain": "playground.example.org",
+			"domain": "localhost:80",
 			"max_age": 7200,
 			"secure": false,
 			"http_only": false

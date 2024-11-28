@@ -1,0 +1,9 @@
+logs
+var
+.gitignore
+docker-build.sh
+gitversion
+README.md
+.idea/**
+.history/**
+.github/**
