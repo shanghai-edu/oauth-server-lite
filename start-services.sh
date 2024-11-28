@@ -30,11 +30,12 @@ OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID:-"oauth"}
 OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET:-"123456"}
 CAS_USERNAME=${CAS_USERNAME:-"cas"}
 CAS_PASSWORD=${CAS_PASSWORD:-"123456"}
+APP_DOMAIN=${APP_DOMAIN:-"application.example.org"}
 OAUTH_SERVER_PORT=${OAUTH_SERVER_PORT:-"8081"}
 CAS_SERVER_PORT=${CAS_SERVER_PORT:-"8444"}  # apereo-cas 服务端口号
 CAS_SERVER_HOST=${CAS_SERVER_HOST:-"localhost"}  # apereo-cas 服务地址/域名
 CAS_SERVER_URL=${CAS_SERVER_URL:-"http://${CAS_SERVER_HOST}:${CAS_SERVER_PORT}"}  # apereo-cas 服务 URL
-OAUTH_REDIS_DSN=${OAUTH_REDIS_DSN:-"redis:6379"}  # redis 服务域名
+OAUTH_REDIS_DSN=${OAUTH_REDIS_DSN:-"localhost:6379"}  # redis 服务域名
 OAUTH_REDIS_PASSWORD=${OAUTH_REDIS_PASSWORD:-""}  # redis 服务密码
 REDIRECT_URL=${REDIRECT_URL:-"http://localhost:80"}  # 重定向 URL （ OAuth2 服务的访问 URL ）
 
@@ -236,7 +237,7 @@ INSERT INTO oauth_client (
   '${OAUTH_CLIENT_ID}',
   '${OAUTH_CLIENT_SECRET}',
   '${OAUTH_GRANT_TYPES}',
-  '',
+  '${APP_DOMAIN}',
   'Basic',
   0
 );

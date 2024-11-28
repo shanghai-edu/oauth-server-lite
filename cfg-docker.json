@@ -10,7 +10,7 @@
 		"db_debug": false
 	},
 	"redis": {
-		"dsn": "redis:6379",
+		"dsn": "localhost:6379",
 		"max_idle": 5,
 		"conn_timeout": 5,
 		"read_timeout": 5,
@@ -29,7 +29,7 @@
 		"x-api-key": "shanghai-edu",
 		"session_options": {
 			"path": "/",
-			"domain": "open-oauth2playground:80",
+			"domain": "localhost:80",
 			"max_age": 7200,
 			"secure": false,
 			"http_only": false
