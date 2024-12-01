@@ -9,8 +9,16 @@ oauth-server-lite 是一个轻量级的 OAuth2 鉴权服务，支持使用 SQLit
 **[ 目录 ]**
 
 - [oauth-server-lite](#oauth-server-lite)
-  - [环境准备](#环境准备)
+  - [配置依赖与集成关系](#配置依赖与集成关系)
+    - [apereo-cas 配置依赖](#apereo-cas-配置依赖)
+    - [oauth-server-lite 配置依赖](#oauth-server-lite-配置依赖)
+    - [环境准备](#环境准备)
   - [安装运行](#安装运行)
+    - [方式一、docker 一键部署运行](#方式一docker-一键部署运行)
+    - [方式二、本地部署运行：`start-services.sh` 脚本快捷启动](#方式二本地部署运行start-servicessh-脚本快捷启动)
+    - [方式二、本地部署运行：`apereo-cas` 配置与部署](#方式二本地部署运行apereo-cas-配置与部署)
+    - [方式二、本地部署运行：`oauth-server-lite` 配置与部署](#方式二本地部署运行oauth-server-lite-配置与部署)
+  - [接口说明](#接口说明)
 
 ## 配置依赖与集成关系
 
@@ -25,7 +33,7 @@ apereo-cas 基于 gradle 编译打包，启动时默认读取 `/etc/cas` 下的 
 
     | 配置参数                                | 介绍                         |
     |-------------------------------------|----------------------------|
-    | `server.port`                       | apereo-cas 服务端口号，默认 8444   | 
+    | `server.port`                       | apereo-cas 服务端口号，默认 8444   |
     | `cas.server.name`                   | apereo-cas 服务地址 / 域名       |
     | `cas.serviceRegistry.json.location` | apereo-cas 服务注册中心路径，一般无需更改 |
     | `cas.authn.jdbc.query[0].url`       | sqlite 数据库 url             |
@@ -46,51 +54,51 @@ oauth-server-lite 提供 OAuth2 认证支持，项目打包后除了可执行文
 
 ```json
 {
-	"logger": {
-		"dir": "logs/",
-		"level": "DEBUG",  // INFO/WARN/DEBUG 三种
-		"keepHours": 24
-	},
-	"cas": "http://localhost:8444/cas/",  // cas 服务访问地址
-	"db": {
-		"sqlite":"sqlite.db",  // 只要不为空，则使用 sqlite 模式，存储到字段中的 sqlite 文件中
-		"mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",  // 使用 mysql 模式时的数据库连接参数
-		"db_debug": false  // true 时会输出详细的 sql debug
-	},
-	"redis": {
-		"dsn": "127.0.0.1:6379",
-		"max_idle": 5,
-		"conn_timeout": 5,  // 单位都是秒
-		"read_timeout": 5,
-		"write_timeout": 5,
-		"password": ""
-	},
-	"redis_namespace":{  // redis key 的命名空间，保持默认即可
-		"oauth":"oauth:",
-		"cache":"cache:",
-		"lock":"lock:",
-		"fail":"fail:"
-	},
-	"http": {
-		"listen": "0.0.0.0:18080",
-		"manage_ip": ["127.0.0.1"],  // 管理接口的授信 ip
-		"x-api-key": "shanghai-edu",  // 管理接口的 api key
-		"session_options":{  // session 参数
-			"path":"/",
-			"domain":"playground.example.org",  // 必须与实际的返回域名匹配
-			"max_age":7200,
-			"secure":false,
-			"http_only":false
-		},
-		"max_multipart_memory":100
-	},
-	"max_failed":5,  // 最大密码错误次数
-	"failed_intervel":300,  // 密码错误统计的间隔时间
-	"lock_time":600,  // 锁定时间
-	"access_token_expired":7200,  // oauth access token 有效期，单位是秒
-	"old_access_token_expired":300,  // 新的 oauth access token 生成时，老 token 的保留时间
-	"refresh_token_expired_day":365,  // refresh token 的有效期，单位是天
-	"code_expired":300  // authorization_code 的有效期，单位是秒
+  "logger": {
+  "dir": "logs/",
+  "level": "DEBUG",  // INFO/WARN/DEBUG 三种
+  "keepHours": 24
+  },
+  "cas": "http://localhost:8444/cas/",  // cas 服务访问地址
+  "db": {
+    "sqlite":"sqlite.db",  // 只要不为空，则使用 sqlite 模式，存储到字段中的 sqlite 文件中
+    "mysql": "root:password@tcp(127.0.0.1:3306)/oauth?charset=utf8&parseTime=True&loc=Local",  // 使用 mysql 模式时的数据库连接参数
+    "db_debug": false  // true 时会输出详细的 sql debug
+  },
+  "redis": {
+    "dsn": "127.0.0.1:6379",
+    "max_idle": 5,
+    "conn_timeout": 5,  // 单位都是秒
+    "read_timeout": 5,
+    "write_timeout": 5,
+    "password": ""
+  },
+  "redis_namespace":{  // redis key 的命名空间，保持默认即可
+    "oauth":"oauth:",
+    "cache":"cache:",
+    "lock":"lock:",
+    "fail":"fail:"
+  },
+  "http": {
+    "listen": "0.0.0.0:18080",
+    "manage_ip": ["127.0.0.1"],  // 管理接口的授信 ip
+    "x-api-key": "shanghai-edu",  // 管理接口的 api key
+    "session_options":{  // session 参数
+      "path":"/",
+      "domain":"playground.example.org",  // 必须与实际的 oauth2 前端地址/域名匹配
+      "max_age":7200,
+      "secure":false,
+      "http_only":false
+    },
+    "max_multipart_memory":100
+  },
+  "max_failed":5,  // 最大密码错误次数
+  "failed_intervel":300,  // 密码错误统计的间隔时间
+  "lock_time":600,  // 锁定时间
+  "access_token_expired":7200,  // oauth access token 有效期，单位是秒
+  "old_access_token_expired":300,  // 新的 oauth access token 生成时，老 token 的保留时间
+  "refresh_token_expired_day":365,  // refresh token 的有效期，单位是天
+  "code_expired":300  // authorization_code 的有效期，单位是秒
 }
 ```
 
@@ -132,16 +140,16 @@ oauth-server-lite 提供 OAuth2 认证支持，项目打包后除了可执行文
 docker-compose -p oauth-server-lite up -d
 ```
 
-**注意事项**
+#### 注意事项
 
-- 此方式启动时，由于容器内无法直接通过 `localhost` 访问其它服务，因此需要通过访问 service name 的方式 ( `redis:6379` ) 连接 redis 。其它配置见文件。
+- `docker-compose.yaml` 提供了一种基于容器模式启动的方案。此方案可共享 `redis` 和 `oauth-server-lite` 的容器网络，仅供测试使用。
 - `cas.db` 默认写入用户信息：
   - `username: cas`，可通过配置 `${CAS_USERNAME}` 修改
   - `password: 123456`，可通过配置 `${CAS_PASSWORD}` 修改
 - `sqlite.db` 默认写入 oauth client 信息：
   - `client_id: oauth`，可通过配置 `${OAUTH_CLIENT_ID}` 修改
   - `client_secret: 123456`，可通过配置 `${OAUTH_CLIENT_SECRET}` 修改
-  - `domains: open-oauth2playground`，可通过配置 `${PLAYGROUND_HOST}` 修改
+  - `domains: localhost`，可通过配置 `${PLAYGROUND_HOST}` 修改
 
 ### 方式二、本地部署运行：`start-services.sh` 脚本快捷启动
 
@@ -153,7 +161,7 @@ sh ./start-services.sh
 
 ### 方式二、本地部署运行：`apereo-cas` 配置与部署
 
-#### 1. sqlite 数据库初始化 (可选)
+#### 1. sqlite 数据库初始化 (可跳过)
 
 **!!!** 若通过 `start-service.sh` 脚本一键启动，docker 运行或自行准备 `cas.db`，此步可跳过
 
@@ -191,19 +199,19 @@ cd apereo-cas
 ./gradlew clean build run
 ```
 
-> **Exception in thread "main" java.io.IOException: Downloading from https://services.gradle.org/distributions/gradle-7.6-bin.zip failed: timeout (10000ms) 报错解决：**
-> 
+> **Exception in thread "main" java.io.IOException: Downloading from [https://services.gradle.org/distributions/gradle-7.6-bin.zip](https://services.gradle.org/distributions/gradle-7.6-bin.zip) failed: timeout (10000ms) 报错解决：**
+>
 > 可以手动将 `gradle-7.6-bin.zip` 拷贝到 `~/.gradle/wrapper/dist/${download_dir}` 目录。例如，在 `root` 账户下，可以通过 `ls /root/.gradle/wrapper/dists/gradle-7.6-bin` 查看到文件被下载到 `9l9tetv7ltxvx3i8an4pb86ye` 目录，则把 .zip 文件也放到这个目录下即可。
 
 ### 方式二、本地部署运行：`oauth-server-lite` 配置与部署
 
 #### 1.1 通过解压二进制包安装
 
-**Linux**
+**Linux** <!-- markdownlint-disable-line MD036 -->
 
 在 [release](https://github.com/shanghai-edu/oauth-server-lite/releases) 中下载最新的 [release] 包，解压即可。
 
-```
+```shell
 mkdir oauth-server-lite
 cd oauth-server-lite/
 wget https://github.com/shanghai-edu/oauth-server-lite/releases/download/v0.3.0/oauth-server-lite-0.3.tar.gz
@@ -214,7 +222,7 @@ tar -zxvf oauth-server-lite-0.3.tar.gz
 
 需要 go 1.13+ 或开启 go module 的其他版本
 
-```
+```shell
 git clone https://github.com/shanghai-edu/oauth-server-lite.git
 cd oauth-server-lite
 go mod tidy && go build
@@ -225,7 +233,7 @@ go mod tidy && go build
 # ./control pack  # 打包命令
 ```
 
-#### 2. 数据库初始化 (可选)
+#### 2. 数据库初始化 (可跳过)
 
 项目默认使用 sqlite ，如果 sqlite 为空则会使用 mysql。强烈推荐使用 sqlite 方式（比较方便）。
 
@@ -239,6 +247,7 @@ go mod tidy && go build
 export OAUTH_CLIENT_ID=oauth
 export OAUTH_CLIENT_SECRET=123456
 export PLAYGROUND_HOST=localhost
+export OAUTH_GRANT_TYPES="password,authorization_code,urn:ietf:params:oauth:grant-type:device_code,client_credentials"
 
 sqlite3 "${OAUTH_SERVER_DB_FILE}" <<EOF
 INSERT INTO oauth_client (
@@ -253,7 +262,7 @@ INSERT INTO oauth_client (
   0,
   '${OAUTH_CLIENT_ID}',
   '${OAUTH_CLIENT_SECRET}',
-  'authorization_code',
+  '${OAUTH_GRANT_TYPES}',
   '${PLAYGROUND_HOST}',
   'Basic',
   0
@@ -269,31 +278,38 @@ EOF
 
 #### 4. sqlite 模式启动
 
-```
+```shell
 ./oauth-server-lite  # 直接运行二进制文件
 ./control start  # 通过 control 脚本启动
 ```
 
 ## 接口说明
 
-##### 创建 client
-```
-# curl -H "X-API-KEY: shanghai-edu" -H "Content-Type: application/json" -d "{\"grant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.0.1:18080/manage/v1/client
+**创建 client** <!-- markdownlint-disable-line MD036 -->
+
+```shell
+# curl -H "X-API-KEY: shanghai-edu" -H "Content-Type: application/json" -d "{\"grant_type\":\"authorization_code\",\"domain\":\"www.example.org\"}" http://127.0.0.1:8081/manage/v1/client
 
 {"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
 ```
-##### 查询 client
-```
-# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/client/4ee85cea19800426
+
+**查询 client** <!-- markdownlint-disable-line MD036 -->
+
+```shell
+# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:8081/manage/v1/client/4ee85cea19800426
 {"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
 ```
-##### 查询所有 client
-```
-# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/clients
+
+**查询所有 client** <!-- markdownlint-disable-line MD036 -->
+
+```shell
+# curl -H "X-API-KEY: shanghai-edu" http://127.0.0.1:8081/manage/v1/clients
 [{"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}]
 ```
-##### 删除 client
-```
-# curl -X DELETE -H "X-API-KEY: shanghai-edu" http://127.0.0.1:18080/manage/v1/client/4ee85cea19800426
+
+**删除 client** <!-- markdownlint-disable-line MD036 -->
+
+```shell
+# curl -X DELETE -H "X-API-KEY: shanghai-edu" http://127.0.0.1:8081/manage/v1/client/4ee85cea19800426
 {"client_id":"4ee85cea19800426","client_secret":"cb5b61017393877d71d9119c585bdca3","grant_type":"authorization_code","domain":"www.example.org","white_ip":"","scope":"Basic","description":""}
 ```

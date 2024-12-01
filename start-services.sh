@@ -26,18 +26,18 @@ CAS_PROPERTIES_FILE=${CAS_PROPERTIES_FILE:-"/etc/cas/config/cas.properties"}
 OAUTH_GRANT_TYPES="password,authorization_code,urn:ietf:params:oauth:grant-type:device_code,client_credentials"
 
 # 可对外暴露的环境变量
-OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID:-"oauth"}
-OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET:-"123456"}
-CAS_USERNAME=${CAS_USERNAME:-"cas"}
-CAS_PASSWORD=${CAS_PASSWORD:-"123456"}
-APP_DOMAIN=${APP_DOMAIN:-"application.example.org"}
-OAUTH_SERVER_PORT=${OAUTH_SERVER_PORT:-"8081"}
+OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID:-"oauth"}  # OAuth2 Client ID
+OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET:-"123456"}  # OAuth2 Client Secret
+CAS_USERNAME=${CAS_USERNAME:-"cas"}  # CAS 用户名
+CAS_PASSWORD=${CAS_PASSWORD:-"123456"}  # CAS 用户密码
+OAUTH_SERVER_PORT=${OAUTH_SERVER_PORT:-"8081"}   # oauth-server-lite 服务端口号
 CAS_SERVER_PORT=${CAS_SERVER_PORT:-"8444"}  # apereo-cas 服务端口号
 CAS_SERVER_HOST=${CAS_SERVER_HOST:-"localhost"}  # apereo-cas 服务地址/域名
 CAS_SERVER_URL=${CAS_SERVER_URL:-"http://${CAS_SERVER_HOST}:${CAS_SERVER_PORT}"}  # apereo-cas 服务 URL
 OAUTH_REDIS_DSN=${OAUTH_REDIS_DSN:-"localhost:6379"}  # redis 服务域名
 OAUTH_REDIS_PASSWORD=${OAUTH_REDIS_PASSWORD:-""}  # redis 服务密码
-REDIRECT_URL=${REDIRECT_URL:-"http://localhost:80"}  # 重定向 URL （ OAuth2 服务的访问 URL ）
+PLAYGROUND_HOST=${PLAYGROUND_HOST:-"localhost"}  # oauth2playground 服务地址/域名
+PLAYGROUND_PORT=${PLAYGROUND_PORT:-"80"}  # oauth2playground 服务端口号
 
 
 # ========================
@@ -237,7 +237,7 @@ INSERT INTO oauth_client (
   '${OAUTH_CLIENT_ID}',
   '${OAUTH_CLIENT_SECRET}',
   '${OAUTH_GRANT_TYPES}',
-  '${APP_DOMAIN}',
+  '${PLAYGROUND_HOST}',
   'Basic',
   0
 );
@@ -267,7 +267,7 @@ configure_oauth_server() {
 
   # 更新 .http 字段（只修改 domain 和 listen，保持其他字段不变）
   jq --arg port "$OAUTH_SERVER_PORT" \
-     --arg domain "$REDIRECT_URL" \
+     --arg domain "$PLAYGROUND_HOST:$PLAYGROUND_PORT" \
      '.http.listen = "0.0.0.0:\($port)" | .http.session_options.domain = $domain' \
      "$OAUTH_SERVER_CONFIG_FILE" > "$OAUTH_SERVER_CONFIG_FILE.tmp" && mv "$OAUTH_SERVER_CONFIG_FILE.tmp" "$OAUTH_SERVER_CONFIG_FILE"
 
