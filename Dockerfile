@@ -38,7 +38,7 @@ ENV PATH_ROOT=/app
 # 安装必要的运行/调试工具，以及 sqlite3 和 Redis
 RUN apt update && \
     apt install -y --no-install-recommends \
-        sudo bash lsof jq curl iproute2 net-tools procps \
+        sudo bash vim lsof jq curl iproute2 net-tools procps \
         ca-certificates iputils-ping redis-tools sqlite3 && \
     rm -rf /var/lib/apt/lists/*
 

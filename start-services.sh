@@ -10,6 +10,12 @@ set -e  # 监测到错误立即退出
 # 变量定义
 # ========================
 
+# 通过环境变量初始化配置文件功能开关
+INIT_ENABLE=${INIT_ENABLE:-1}
+CFG_INIT_ENABLE=${CFG_INIT_ENABLE:-1}
+CAS_PROPERTIES_INIT_ENABLE=${CAS_PROPERTIES_INIT_ENABLE:-1}
+
+
 # docker 容器中各（配置）文件以及目录的路径
 PATH_ROOT=${PATH_ROOT:-"/oauth-server-lite"}
 ## oauth-server-lite 目录配置
@@ -294,9 +300,21 @@ wait_for_cas() {
 # ========================
 # 主执行流程
 # ========================
-init
-configure_cas_properties
-configure_oauth_server
+# 判断 INIT_ENABLE 是否为 1
+if [ "$INIT_ENABLE" -eq 1 ]; then
+    echo "Initialization is enabled. Starting initialization process..."
+    init
+else
+    echo "Initialization is disabled. Skipping initialization process."
+fi
+# 判断 CAS_PROPERTIES_INIT_ENABLE 是否为 1
+if [ "$CAS_PROPERTIES_INIT_ENABLE" -eq 1 ]; then
+    configure_cas_properties
+fi
+# 判断 CFG_INIT_ENABLE 是否为 1
+if [ "$CFG_INIT_ENABLE" -eq 1 ]; then
+    configure_oauth_server
+fi
 start_cas
 wait_for_cas
 start_oauth_server
