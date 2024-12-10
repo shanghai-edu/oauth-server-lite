@@ -10,8 +10,8 @@ services:
     image: redis:alpine
     container_name: oauth-redis
     ports:
-      # - "6379:6379"   # redis 端口
-      # - "8080:8080"   # apereo-cas 后端服务占用
+#     - "6379:6379"   # redis 端口
+#     - "8080:8080"   # apereo-cas 后端服务占用
       - "8081:8081"   # oauth-server-lite 前端服务
       - "8444:8444"   # apereo-cas 前端服务占用
     networks:
@@ -22,6 +22,9 @@ services:
     image: ecnunic/oauth-server-lite:v0.3.0
     container_name: oauth-server-lite
     environment:
+      - INIT_ENABLE=1                         # 是否通过环境变量配置全部文件 （与挂载配置文件冲突）
+      - CFG_INIT_ENABLE=1                     # 是否通过环境变量配置 cfg.json 配置文件 （与挂载配置文件冲突）
+      - CAS_PROPERTIES_INIT_ENABLE=1          # 是否通过环境变量配置 cas_properties 配置文件 （与挂载配置文件冲突）
       - OAUTH_CLIENT_ID=oauth                 # OAuth2 Client ID
       - OAUTH_CLIENT_SECRET=123456            # OAuth2 Client Secret
       - CAS_USERNAME=cas                      # CAS 用户名
@@ -37,13 +40,13 @@ services:
     depends_on:
       - redis
     network_mode: container:redis
-    #    volumes:
-    #      - ./oauth-server-lite/apereo-cas/cas.db:/app/apereo-cas/cas.db                       # apereo-cas 用户信息 sqlite 数据库
-    #      - ./oauth-server-lite/apereo-cas/config:/etc/cas/config                              # apereo-cas 配置信息
-    #      - ./oauth-server-lite/apereo-cas/services:/etc/cas/services                          # apereo-cas 服务配置
-    #      - ./oauth-server-lite/oauth-server-lite/sqlite.db:/app/oauth-server-lite/sqlite.db   # oauth-server-lite 认证信息 sqlite 数据库
-    #      - ./oauth-server-lite/oauth-server-lite/cfg.json:/app/oauth-server-lite/cfg.json     # oauth-server-lite 配置信息
-    #      - ./oauth-server-lite/oauth-server-lite/logs:/app/oauth-server-lite/logs             # oauth-server-lite 日志
+#    volumes:
+#      - ./oauth-server-lite/apereo-cas/cas.db:/app/apereo-cas/cas.db                       # apereo-cas 用户信息 sqlite 数据库
+#      - ./oauth-server-lite/apereo-cas/config:/etc/cas/config                              # apereo-cas 配置信息
+#      - ./oauth-server-lite/apereo-cas/services:/etc/cas/services                          # apereo-cas 服务配置
+#      - ./oauth-server-lite/oauth-server-lite/sqlite.db:/app/oauth-server-lite/sqlite.db   # oauth-server-lite 认证信息 sqlite 数据库
+#      - ./oauth-server-lite/oauth-server-lite/cfg.json:/app/oauth-server-lite/cfg.json     # oauth-server-lite 配置信息
+#      - ./oauth-server-lite/oauth-server-lite/logs:/app/oauth-server-lite/logs             # oauth-server-lite 日志
     restart: always
 
 networks:
